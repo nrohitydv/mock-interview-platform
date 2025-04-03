@@ -9,6 +9,8 @@ import Image from "next/image";
 import React from "react";
 import Link from "next/link";
 import { toast } from "sonner";
+import FormField from "./FormField";
+import { useRouter } from "next/navigation";
 
 const authFormSchema = (type: FormType) => {
   return z.object({
@@ -18,6 +20,7 @@ const authFormSchema = (type: FormType) => {
   });
 };
 const AuthForm = ({ type }: { type: FormType }) => {
+  const router = useRouter();
   const formSchema = authFormSchema(type);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -32,9 +35,12 @@ const AuthForm = ({ type }: { type: FormType }) => {
   function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       if (type === "sign-in") {
-        console.log("sign in", values);
+        toast.success("Sign in successful");
+        router.push("/");
+        console.log(values);
       } else {
-        console.log("sign up", values);
+        toast.success("Account created successfully. Please sign in.");
+        router.push("/sign-in");
       }
     } catch (error) {
       console.error(error);
@@ -56,9 +62,29 @@ const AuthForm = ({ type }: { type: FormType }) => {
             onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-6 w-full mt-4 form"
           >
-            {!isSignIn && <p>Name</p>}
-            <p>Email</p>
-            <p>Password</p>
+            {!isSignIn && (
+              <FormField
+                control={form.control}
+                name="name"
+                label="Name"
+                placeholder="Your Name"
+              />
+            )}
+
+            <FormField
+              control={form.control}
+              name="email"
+              label="Email"
+              placeholder="Your Email"
+              type="email"
+            />
+            <FormField
+              control={form.control}
+              name="password"
+              label="Password"
+              placeholder="Your Password"
+              type="password"
+            />
             <Button className="btn" type="submit">
               {isSignIn ? "Sign In" : "Create an Account"}
             </Button>
